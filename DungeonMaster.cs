@@ -6,13 +6,16 @@ namespace DungeonMaster
 {
     class DungeonMaster
     {
+
         static Dungeon dungeon;
+        static Room parentRoom;
         static Room currentRoom;
 
         static void Main(string[] args)
         {
             dungeon = Dungeon.GetInstance();
             dungeon.GenerateRooms();
+            parentRoom = dungeon.GetCurrentRoom();
 
             bool redraw = true;
             while (true)
@@ -21,7 +24,7 @@ namespace DungeonMaster
                 {
                     // Works only for one not looped branch
                     currentRoom = dungeon.GetCurrentRoom();
-                    DisplayRooms(currentRoom);
+                    DisplayRooms(parentRoom);
                     redraw = false;
                 }
 
@@ -42,7 +45,14 @@ namespace DungeonMaster
                         break;
                     case ConsoleKey.R:
                         dungeon.GenerateRooms();
+                        parentRoom = dungeon.GetCurrentRoom();
+                        currentRoom = parentRoom;
+                        redraw = true;
+                        break;
+                    case ConsoleKey.Z:
+                        dungeon.Undo();
                         currentRoom = dungeon.GetCurrentRoom();
+                        redraw = true;
                         break;
                     default:
                         break;
@@ -120,12 +130,13 @@ namespace DungeonMaster
                 if (parent.Connected.Count == 1)
                     if (parent.Connected.Contains(previousRoom)) break;
             }
+            WriteAt("Use Arrow keys for moving between rooms | <R> for regenerate rooms | <Z> for undo", 0, Console.CursorTop + 2, Color.None);
         }
 
         protected static void DrawRoom(Room parent, Room room)
         {
-            int leftMargin = room.X * 7;
-            int upMargin = room.Y * 4;
+            int leftMargin = 4 + room.X * 7;
+            int upMargin = 2 + room.Y * 4;
             if (parent != room)
             {
                 if (parent.X < room.X)
@@ -159,11 +170,7 @@ namespace DungeonMaster
                 Console.SetCursorPosition(origCol + x, origRow + y);
                 Console.Write(s, color.KnownColor());
             }
-            catch (ArgumentOutOfRangeException e)
-            {
-                Console.Clear();
-                Console.WriteLine(e.Message, color.KnownColor());
-            }
+            catch { }
         }
     }
 }
