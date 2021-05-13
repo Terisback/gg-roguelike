@@ -170,7 +170,11 @@ namespace DungeonMaster
                 Console.SetCursorPosition(origCol + x, origRow + y);
                 Console.Write(s, color.KnownColor());
             }
-            catch { }
+            catch (ArgumentOutOfRangeException e)
+            {
+                Console.Clear();
+                Console.WriteLine(e.Message, KnownColor.Red);
+            }
         }
     }
 }
